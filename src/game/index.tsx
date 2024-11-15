@@ -9,10 +9,6 @@ class Game {
   MS_PER_UPDATE: number
   MS_ENEMY_SPAWN_INTERVAL: number
 
-  viewSize: {
-    width: number
-    height: number
-  }
   canvas: HTMLCanvasElement
   context: CanvasRenderingContext2D
 
@@ -27,24 +23,23 @@ class Game {
   tower: Tower
   enemys: Enemy[] = []
   bullets: Bullet[] = []
+  minutsUntilBoss: number
+  minutsUntilBossDefault: number
   timeSinceLastEnemySpawn: number
+  perfectInputs: number
+  onGameOver: () => void
+  private _characterTypedCorrectly: boolean
 
   constructor({
     canvas,
-    context,
-    viewSize
+    context
   }: {
     canvas: HTMLCanvasElement,
     context: CanvasRenderingContext2D,
-    viewSize: {
-      width: number
-      height: number
-    }
   }) {
     this.FPS = 60
     this.MS_PER_UPDATE = 1000 / this.FPS
-    this.MS_ENEMY_SPAWN_INTERVAL = 2000;
-    this.viewSize = viewSize
+    this.MS_ENEMY_SPAWN_INTERVAL = 3000;
     this.canvas = canvas
     this.context = context
 
@@ -54,6 +49,11 @@ class Game {
     this.previousTime = 0
     this.currentTime = 0
     this.timeSinceLastEnemySpawn = 0
+    this.perfectInputs = 0
+    this._characterTypedCorrectly = false
+    this.minutsUntilBoss = 3
+    this.minutsUntilBossDefault = 3
+    this.onGameOver = () => {}
 
     this.background = new Background(this)
     this.gameOverlay = new GameOverlay(this)
@@ -64,20 +64,18 @@ class Game {
   }
 
   start() {
-    this.mapWords()
     this.handleInputs()
     this.gameLoop()
   }
 
   handleResize({ width, height }: { width: number, height: number }) {
-    this.viewSize = {
-      width,
-      height
-    }
+    this.canvas.width = width
+    this.canvas.height = height
   }
 
   handleInputs() {
     document.addEventListener("keydown", (event) => {
+      this._characterTypedCorrectly = false
       if (event.key === "Escape") {
         this.isPaused = !this.isPaused
       }
@@ -103,40 +101,50 @@ class Game {
           this.bullets.push(bullet);
         }
       }
+
+      if (this._characterTypedCorrectly) {
+        this.perfectInputs += 1;
+        this._characterTypedCorrectly = false;
+      } else {
+        this.perfectInputs = 0;
+      }
     })
   }
 
-  mapWords() {
-    const words = ["hello", "world", "javascript", "typescript", "react", "node", "express", "mongodb", "mysql", "postgresql", "docker", "kubernetes", "aws", "gcp", "azure", "firebase", "heroku", "netlify", "vercel", "github", "gitlab", "bitbucket", "slack", "discord", "zoom", "google", "apple", "microsoft", "facebook", "twitter", "instagram", "linkedin", "youtube", "tiktok", "snapchat", "whatsapp", "telegram", "signal", "spotify", "netflix", "hulu", "amazon", "ebay", "etsy", "walmart", "target", "bestbuy", "costco", "starbucks", "mcdonalds", "burgerking", "kfc", "pizzahut", "dominos", "subway", "chipotle", "tacobell", "wendys", "popeyes", "chickfila", "panera", "dunkindonuts", "baskinrobbins", "dairyqueen", "sonic", "jamba", "smoothieking", "redbull", "monster", "rockstar", "bang", "gatorade", "powerade", "vitaminwater", "smartwater", "dasani", "poland", "spring", "evian", "fiji", "perrier", "pepsi", "cocacola", "sprite", "mountaindew", "drpepper", "fanta", "redbull", "monster", "rockstar", "bang", "gatorade", "powerade", "vitaminwater", "smartwater", "dasani", "poland", "spring", "evian", "fiji", "perrier", "pepsi", "cocacola", "sprite", "mountaindew", "drpepper", "fanta", "redbull", "monster", "rockstar", "bang", "gatorade", "powerade", "vitaminwater", "smartwater", "dasani", "poland", "spring", "evian", "fiji", "perrier", "pepsi", "cocacola", "sprite", "mountaindew", "drpepper"]
-    return words.reduce((previousValue: { [n: number]: string[] } | null, currentValue: string) => {
-      const mappedObject = previousValue || {}
-      mappedObject[currentValue.length] = mappedObject[currentValue.length] || []
-      mappedObject[currentValue.length].push(currentValue)
-      return mappedObject
-    }, {})
-  }
-
   selectWorld (): string {
-    const words = ["hello", "world", "javascript", "typescript", "react", "node", "express", "mongodb", "mysql", "postgresql", "docker", "kubernetes", "aws", "gcp", "azure", "firebase", "heroku", "netlify", "vercel", "github", "gitlab", "bitbucket", "slack", "discord", "zoom", "google", "apple", "microsoft", "facebook", "twitter", "instagram", "linkedin", "youtube", "tiktok", "snapchat", "whatsapp", "telegram", "signal", "spotify", "netflix", "hulu", "amazon", "ebay", "etsy", "walmart", "target", "bestbuy", "costco", "starbucks", "mcdonalds", "burgerking", "kfc", "pizzahut", "dominos", "subway", "chipotle", "tacobell", "wendys", "popeyes", "chickfila", "panera", "dunkindonuts", "baskinrobbins", "dairyqueen", "sonic", "jamba", "smoothieking", "redbull", "monster", "rockstar", "bang", "gatorade", "powerade", "vitaminwater", "smartwater", "dasani", "poland", "spring", "evian", "fiji", "perrier", "pepsi", "cocacola", "sprite", "mountaindew", "drpepper", "fanta", "redbull", "monster", "rockstar", "bang", "gatorade", "powerade", "vitaminwater", "smartwater", "dasani", "poland", "spring", "evian", "fiji", "perrier", "pepsi", "cocacola", "sprite", "mountaindew", "drpepper", "fanta", "redbull", "monster", "rockstar", "bang", "gatorade", "powerade", "vitaminwater", "smartwater", "dasani", "poland", "spring", "evian", "fiji", "perrier", "pepsi", "cocacola", "sprite", "mountaindew", "drpepper"]
+    const words = ["javascript", "typescript", "react", "node", "express", "mongodb", "mysql", "postgresql", "docker", "kubernetes", "aws", "gcp", "azure", "firebase", "heroku", "netlify", "vercel", "github", "gitlab", "bitbucket", "slack", "discord", "zoom", "google", "apple", "microsoft", "facebook", "twitter", "instagram", "linkedin", "youtube", "tiktok", "snapchat", "whatsapp", "telegram", "signal", "spotify", "netflix", "hulu", "amazon", "ebay", "walmart", "target", "bestbuy", "costco", "starbucks", "mcdonalds", "burgerking", "kfc", "pizzahut", "dominos", "subway", "chipotle", "tacobell", "wendys", "popeyes", "chickfila", "panera"]
     const randomIndex = Math.floor(Math.random() * words.length)
     return words[randomIndex]
   }
 
+  timeUntilBoss () {
+    return Math.max(this.minutsUntilBoss * 60 * 1000 - this.elapsedTime, 0);
+  }
+
   handleEnemySpawn(deltaTime: number) {
     this.timeSinceLastEnemySpawn += deltaTime;
-
     const enemySpawTime = this.MS_ENEMY_SPAWN_INTERVAL - ((this.elapsedTime / 1000) * 5);
-    if (this.timeSinceLastEnemySpawn >= enemySpawTime) {
-      const angle = Math.random() * 2 * Math.PI
-      const distance = this.viewSize.width > this.viewSize.height ? this.viewSize.width / 2 : this.viewSize.height / 2
-      const x = (this.viewSize.width / 2) + Math.cos(angle) * distance
-      const y = (this.viewSize.height / 2) + Math.sin(angle) * distance
+
+    const angle = Math.random() * 2 * Math.PI
+    const distance = this.canvas.width > this.canvas.height ? this.canvas.width / 2 : this.canvas.height / 2
+    const x = (this.canvas.width / 2) + Math.cos(angle) * distance
+    const y = (this.canvas.height / 2) + Math.sin(angle) * distance
+
+    if (this.timeUntilBoss() <= 300) {
+      this.minutsUntilBoss += this.minutsUntilBossDefault;
       const enemy = new Enemy(this, {
         x,
         y,
-        health: 100,
-        maxHealth: 100,
-        word: this.selectWorld()
+        word: this.selectWorld(),
+        type: 'boss'
+      })
+      this.enemys.push(enemy);
+    } else if (this.timeSinceLastEnemySpawn >= enemySpawTime) {
+      const enemy = new Enemy(this, {
+        x,
+        y,
+        word: this.selectWorld(),
+        type: 'normal'
       })
       this.enemys.push(enemy);
       this.timeSinceLastEnemySpawn = 0;
@@ -145,8 +153,12 @@ class Game {
 
   gameLoop() {
     const loop = () => {
-      if (this.isPaused) return requestAnimationFrame(loop);
-      if (!document.hasFocus() && document.visibilityState !== "visible") return this.isPaused = true
+      if (this.isPaused) {
+        return requestAnimationFrame(loop);
+      }
+      if (!document.hasFocus() && document.visibilityState !== "visible") {
+        return this.isPaused = true
+      }
 
       this.previousTime = this.currentTime;
       this.currentTime = this.elapsedTime
@@ -171,6 +183,7 @@ class Game {
     const isCorrectChar = enemy.word[enemy.lastLetterIndex] === eventKey;
 
     if (isCorrectChar) {
+      this._characterTypedCorrectly = true;
       enemy.lastLetterIndex += 1;
       if (enemy.word.length === enemy.lastLetterIndex) {
         return true;
@@ -187,6 +200,7 @@ class Game {
   update(deltaTime: number) {
     if (this.tower.health <= 0) {
       this.isPaused = true
+      this.onGameOver()
       return
     }
     this.handleEnemySpawn(deltaTime)
@@ -197,6 +211,7 @@ class Game {
       if (Math.abs(enemy.x - this.tower.x) < 20 && Math.abs(enemy.y - this.tower.y) < 20) {
         this.enemys.splice(enemyIndex, 1);
         this.tower.health -= enemy.damage;
+        this.perfectInputs = 0;
         continue
       }
 

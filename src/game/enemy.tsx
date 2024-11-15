@@ -11,6 +11,7 @@ export type EnemyProps = {
   damage: number;
   xp: number;
   targeted: boolean;
+  type: string;
 };
 
 class Enemy {
@@ -25,31 +26,61 @@ class Enemy {
   damage: number;
   xp: number;
   targeted: boolean;
+  type: string;
 
   constructor(game: Game, {
     x,
     y,
-    health,
-    maxHealth,
-    word
+    word,
+    type
   }: {
     x: number;
     y: number;
-    health: number;
-    maxHealth: number;
     word: string;
+    type: string;
   }) {
     this.game = game;
     this.x = x;
     this.y = y;
-    this.health = health;
-    this.maxHealth = maxHealth;
+    this.health = 100;
+    this.maxHealth = 100;
     this.word = word.toLowerCase();
     this.lastLetterIndex = 0;
-    this.speed = 1;
+    this.speed = 0.5;
     this.damage = 10;
     this.xp = 10;
     this.targeted = false;
+    this.type = type;
+
+    if (this.type === 'boss') {
+      this.health = 300;
+      this.maxHealth = 300;
+      this.damage = 500;
+      this.speed = 0.2;
+      this.xp = 100;
+    }
+  }
+
+  update() {
+    if (this.lastLetterIndex === this.word.length) {
+      this.targeted = true
+    }
+
+    if (this.type === "boss") {
+      if (this.word.length === this.lastLetterIndex) {
+        this.word = this.game.selectWorld()
+        this.lastLetterIndex = 0
+        this.targeted = false
+      }
+    }
+
+    this.moveTowards(this.game.tower.x, this.game.tower.y);
+  }
+
+  moveTowards(targetX: number, targetY: number) {
+    const angle = Math.atan2(targetY - this.y, targetX - this.x);
+    this.x += Math.cos(angle) * this.speed;
+    this.y += Math.sin(angle) * this.speed;
   }
 
   draw(ctx: CanvasRenderingContext2D) {
@@ -69,25 +100,19 @@ class Enemy {
       ctx.fillText(this.word[i], textX + ctx.measureText(this.word.substring(0, i)).width, textY);
     }
 
-    ctx.beginPath();
-    ctx.arc(this.x, this.y, 7, 0, 2 * Math.PI);
-    ctx.fillStyle = "#9E585F";
-    ctx.fill();
-    ctx.closePath();
-  }
-
-  update () {
-    if (this.lastLetterIndex === this.word.length) {
-      this.targeted = true
+    if (this.type === 'boss') {
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, 20, 0, 2 * Math.PI);
+      ctx.fillStyle = "blue";
+      ctx.fill();
+      ctx.closePath();
+    } else {
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, 7, 0, 2 * Math.PI);
+      ctx.fillStyle = "#9E585F";
+      ctx.fill();
+      ctx.closePath();
     }
-
-    this.moveTowards(this.game.tower.x, this.game.tower.y);
-  }
-
-  moveTowards(targetX: number, targetY: number) {
-    const angle = Math.atan2(targetY - this.y, targetX - this.x);
-    this.x += Math.cos(angle) * this.speed;
-    this.y += Math.sin(angle) * this.speed;
   }
 }
 

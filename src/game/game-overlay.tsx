@@ -11,7 +11,7 @@ class GameOverlay {
     const totalSeconds = Math.floor(milliseconds / 1000);
     const minutes = Math.floor(totalSeconds / 60);
     const seconds = totalSeconds % 60;
-    const ms = Math.floor((milliseconds % 1000) / 10); // Pega os dois primeiros dígitos de milissegundos
+    const ms = Math.floor((milliseconds % 1000) / 10);
 
     const formattedMinutes = String(minutes).padStart(2, '0');
     const formattedSeconds = String(seconds).padStart(2, '0');
@@ -21,8 +21,8 @@ class GameOverlay {
   }
 
   draw(ctx: CanvasRenderingContext2D): void {
-    const { tower, viewSize, elapsedTime } = this.game;
-    const { width, height } = viewSize;
+    const { tower, canvas } = this.game;
+    const { width, height } = canvas;
     const centerX = width / 2;
     const centerY = height / 2;
     const overlayHeight = 15;
@@ -38,11 +38,12 @@ class GameOverlay {
     this.drawRectangle(ctx, centerX - rectangleWidth / 2, 90, rectangleWidth, 8, "#B0AFA4");
     this.drawRectangle(ctx, centerX - rectangleWidth / 2, 90, (levelProgress / 100) * rectangleWidth, 8, "#656566");
 
-    const timeUntilBoss = Math.max(3 * 60 * 1000 - elapsedTime, 0);
-    const formattedTime = this.formatTime(timeUntilBoss);
+    const formattedTime = this.formatTime(this.game.timeUntilBoss());
     this.drawCenteredText(ctx, formattedTime, centerX, 50, "bold 35px Arial", "#656566");
 
-    this.drawCenteredText(ctx, 'Perfect Inputs x176', centerX, centerY + 130, "25px Arial", "#656566");
+    if (this.game.perfectInputs > 0) {
+      this.drawCenteredText(ctx, `Perfect Inputs x${this.game.perfectInputs}`, centerX, centerY + 130, "25px Arial", "#656566");
+    }
   }
 
   private drawRectangle(ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number, color: string): void {

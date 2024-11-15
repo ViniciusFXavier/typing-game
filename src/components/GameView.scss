@@ -1,0 +1,17 @@
+.restart-button {
+  position: fixed;
+    top: 50%;
+    left: 50%;
+    background-color: #656566;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 0.75rem;
+    font-weight: 600;
+    height: 3.125rem;
+    padding: 0 1.5625rem;
+    letter-spacing: 0.125rem;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}

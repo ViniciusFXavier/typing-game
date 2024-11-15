@@ -47,7 +47,7 @@ class Tower {
   }
 
   update() {
-    const { width, height } = this.game.viewSize;
+    const { width, height } = this.game.canvas;
     this.x = width / 2
     this.y = height / 2
 
@@ -63,7 +63,7 @@ class Tower {
   draw(ctx: CanvasRenderingContext2D) {
     const { tower } = this.game;
     const levelProgress = Math.min((tower.xp / tower.xpToNextLevel) * 100, 100);
-    const endAngle = (levelProgress / 100) * (Math.PI * 2); // 360 graus = 2 * PI radianos
+    const endAngle = (levelProgress / 100) * (Math.PI * 2);
 
     ctx.beginPath()
     ctx.arc(this.x, this.y, 20, 0, 2 * Math.PI)
@@ -96,7 +96,7 @@ class Tower {
     ctx.fill();
     ctx.closePath();
 
-    const healthWidth = (this.health / this.maxHealth) * barWidth;
+    const healthWidth = Math.max((this.health / this.maxHealth) * barWidth, 0);
 
     ctx.beginPath();
     ctx.rect(this.x - barWidth / 2, this.y + 50, healthWidth, barHeight);

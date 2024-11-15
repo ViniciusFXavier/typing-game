@@ -8,7 +8,7 @@ class Background {
   }
 
   draw(ctx: CanvasRenderingContext2D) {
-    const { width, height } = this.game.viewSize;
+    const { width, height } = this.game.canvas;
     const centerX = width / 2;
     const centerY = height / 2;
 

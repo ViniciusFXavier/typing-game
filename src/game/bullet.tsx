@@ -67,7 +67,7 @@ class Bullet {
     this.x += this.direction.x * this.speed;
     this.y += this.direction.y * this.speed;
 
-    const distanceMax = this.game.viewSize.width > this.game.viewSize.height ? this.game.viewSize.width : this.game.viewSize.height
+    const distanceMax = this.game.canvas.width > this.game.canvas.height ? this.game.canvas.width : this.game.canvas.height
     if (this.x < 0 || this.x > distanceMax || this.y < 0 || this.y > distanceMax) {
       this.game.bullets = this.game.bullets.filter(bullet => bullet !== this);
     }
